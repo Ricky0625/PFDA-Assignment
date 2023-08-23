@@ -180,6 +180,65 @@ ggplot(retire_soon, mapping = aes(x = fct_rev(fct_infreq(job_title)), fill = mig
 ## top management employees (HEADOFFICE) also will face a huge impact due to retirement
 ## important roles like CEO, CIO, VP Finance ... will also going to retire
 
+
+# ----------------------------------- Analysis 5 -------------------------------------
+# Find the number of middle management level employees that going to retire
+store_manager_level = c("Store Manager", "Produce Manager", "Processed Foods Manager", "Meats Manager", "Customer Service Manager", "Bakery Manager")
+
+stores_retire_soon <- emp %>% 
+  filter(
+    STATUS == "ACTIVE",
+    BUSINESS_UNIT == "STORES",
+    STATUS_YEAR == 2015
+  ) %>% 
+  mutate(
+    level = ifelse(job_title %in% store_manager_level, "Manager", "Employee"),
+    might_retired = ifelse((age >=55 & age <= 65), TRUE, FALSE)
+  ) %>% 
+  group_by(job_title)
+
+ggplot(stores_retire_soon, aes(job_title, fill = might_retired)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::percent) +
+  facet_wrap(~level, scales = "free") +
+  labs(
+    title = "Percentage of STORES employee that will going to retire in 5 to 10 years (Based on level)",
+    fill = "Might Retire (in 5 to 10 years)") +
+  xlab("Job Title") +
+  ylab("Percentage (%)") +
+  coord_flip()
+
+stores_retire_soon %>% 
+  group_by(level) %>% 
+  summarise(
+    count = n(),
+    retire_rate = sum(might_retired == TRUE),
+    percentage = paste(round((retire_rate/count) * 100, 0),"%")
+  ) %>% 
+  View()
+
+# Within 5 to 10 years, the number of meat cutter will decrease significantly. (serious case)
+# Within 5 to 10 years, these jobs might going to disappear in the company completely
+## Produce Manager
+## Processed Foods Manager
+## Customer Service Manager
+## Bakery Manager
+
+
+
+
+
+
+#Changed By Nabin Bhatta(LBEF Campus - APU, Nepal). 1st analysis 5 should be executed, then only analysis 3 and 4 executes otherwise it will throw an error. 
+
+
+
+
+
+
+
+
+
 # ----------------------------------- Analysis 3 -------------------------------------
 ## Find which city and store with be affected the most due to the meat cutter's huge retirement wave
 stores_retire_soon %>% 
@@ -253,49 +312,6 @@ ggplot(store_mc_retire_50, aes(city_name, store_name, color = (percentage >= 50)
 ## Vancouver has 4 stores with a meats department
 ## other cities on the list only have 1 store
 ## Vancouver store (41 & 42) will not have any meat cutter left due to the retirement wave
-
-# ----------------------------------- Analysis 5 -------------------------------------
-# Find the number of middle management level employees that going to retire
-store_manager_level = c("Store Manager", "Produce Manager", "Processed Foods Manager", "Meats Manager", "Customer Service Manager", "Bakery Manager")
-
-stores_retire_soon <- emp %>% 
-  filter(
-    STATUS == "ACTIVE",
-    BUSINESS_UNIT == "STORES",
-    STATUS_YEAR == 2015
-  ) %>% 
-  mutate(
-    level = ifelse(job_title %in% store_manager_level, "Manager", "Employee"),
-    might_retired = ifelse((age >=55 & age <= 65), TRUE, FALSE)
-  ) %>% 
-  group_by(job_title)
-
-ggplot(stores_retire_soon, aes(job_title, fill = might_retired)) +
-  geom_bar(position = "fill") +
-  scale_y_continuous(labels = scales::percent) +
-  facet_wrap(~level, scales = "free") +
-  labs(
-    title = "Percentage of STORES employee that will going to retire in 5 to 10 years (Based on level)",
-    fill = "Might Retire (in 5 to 10 years)") +
-  xlab("Job Title") +
-  ylab("Percentage (%)") +
-  coord_flip()
-
-stores_retire_soon %>% 
-  group_by(level) %>% 
-  summarise(
-    count = n(),
-    retire_rate = sum(might_retired == TRUE),
-    percentage = paste(round((retire_rate/count) * 100, 0),"%")
-  ) %>% 
-  View()
-
-# Within 5 to 10 years, the number of meat cutter will decrease significantly. (serious case)
-# Within 5 to 10 years, these jobs might going to disappear in the company completely
-## Produce Manager
-## Processed Foods Manager
-## Customer Service Manager
-## Bakery Manager
 
 # ----------------------------- Conclusion (Q1) -------------------------------------
 
@@ -637,7 +653,7 @@ ggplot(age_layoff, aes(age)) +
                                "M" = "#68C1EB"))
 
 # Findings for this analysis:
-## young employees around 30± years old seem to have a high layoff rate regardless of gender
+## young employees around 30Â± years old seem to have a high layoff rate regardless of gender
 ## both male and female employees that are 65 years old have the highest number of layoffs in both facets
 ## This could be a trick that the company may use to cover up older employees' large-scale layoffs
 ## https://www.hg.org/legal-articles/how-companies-may-use-layoffs-to-hide-age-discrimination-50105
